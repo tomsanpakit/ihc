@@ -1,0 +1,487 @@
+<link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@300;400;600;700&family=Playfair+Display:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --page-bg:  #e8edf2;
+    --blue:     #2b6cb0;
+    --blue-dk:  #1e5799;
+    --blue-lt:  #ebf4fb;
+    --white:    #ffffff;
+    --ink:      #1a2733;
+    --muted:    #6b7c8d;
+    --border:   #d0dce8;
+    --tag-bg:   #ddeef8;
+    --sage:     #4a7c6f;
+    --sage-lt:  #edf5f3;
+    --font-body: 'Nunito Sans', sans-serif;
+    --font-disp: 'Playfair Display', serif;
+  }
+
+  body { font-family: var(--font-body); background: var(--page-bg); color: var(--ink); line-height: 1.6; }
+
+  /* ══ FILTER HEADER ══ */
+  #ihc-filter-root { max-width: 1200px; margin: 0 auto; padding: 48px 48px 72px; }
+
+  .filter-header { margin-bottom: 36px; }
+  .filter-header h2 {
+    font-family: var(--font-disp);
+    font-size: clamp(1.4rem, 2.2vw, 1.8rem);
+    font-weight: 400; color: var(--ink);
+    margin-bottom: 6px;
+  }
+  .filter-header p { font-size: 14px; color: var(--muted); }
+
+  /* ══ FILTER CONTROLS ══ */
+  .filter-controls {
+    background: var(--white);
+    border-radius: 16px;
+    padding: 28px 28px 24px;
+    box-shadow: 0 3px 16px rgba(0,0,0,.07);
+    margin-bottom: 36px;
+  }
+  .filter-group { margin-bottom: 20px; }
+  .filter-group:last-child { margin-bottom: 0; }
+  .filter-group-label {
+    font-size: 11px; font-weight: 700;
+    letter-spacing: .12em; text-transform: uppercase;
+    color: var(--muted); margin-bottom: 10px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .filter-group-label::after {
+    content: ''; flex: 1; height: 1px; background: var(--border);
+  }
+  .filter-pills { display: flex; flex-wrap: wrap; gap: 8px; }
+  .filter-pill {
+    padding: 6px 14px; border-radius: 50px;
+    font-size: 12px; font-weight: 600;
+    cursor: pointer; border: 1.5px solid var(--border);
+    background: var(--white); color: var(--muted);
+    transition: all .15s; user-select: none;
+    font-family: var(--font-body);
+  }
+  .filter-pill:hover { border-color: var(--blue); color: var(--blue); }
+  .filter-pill.active { background: var(--blue); color: #fff; border-color: var(--blue); }
+  .filter-pill.location.active { background: var(--sage); border-color: var(--sage); }
+
+  /* Clear filters */
+  .filter-actions {
+    display: flex; align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap; gap: 12px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+    margin-top: 20px;
+  }
+  .result-summary { font-size: 13px; color: var(--muted); }
+  .result-summary strong { color: var(--ink); }
+  .clear-btn {
+    font-size: 12px; font-weight: 700; color: var(--muted);
+    background: none; border: none; cursor: pointer;
+    padding: 6px 12px; border-radius: 6px;
+    transition: all .15s; font-family: var(--font-body);
+  }
+  .clear-btn:hover { background: var(--page-bg); color: var(--ink); }
+  .clear-btn:disabled { opacity: .35; cursor: default; }
+
+  /* ══ LOADING STATE ══ */
+  .loading-state {
+    text-align: center; padding: 60px 20px;
+    color: var(--muted); font-size: 14px;
+  }
+  .loading-spinner {
+    width: 32px; height: 32px;
+    border: 3px solid var(--border);
+    border-top-color: var(--blue);
+    border-radius: 50%;
+    animation: spin .7s linear infinite;
+    margin: 0 auto 16px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ══ EMPTY STATE ══ */
+  .empty-state {
+    display: none; text-align: center;
+    padding: 60px 20px; color: var(--muted);
+  }
+  .empty-state svg {
+    width: 40px; height: 40px; stroke: var(--border);
+    fill: none; stroke-width: 1.5;
+    margin: 0 auto 16px; display: block;
+  }
+  .empty-state p { font-size: 15px; margin-bottom: 8px; }
+  .empty-state span { font-size: 13px; }
+
+  /* ══ CLINICIAN GRID ══ */
+  .clinician-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+  }
+
+  .clinician-card {
+    background: var(--white); border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0,0,0,.07);
+    transition: transform .2s, box-shadow .2s, opacity .2s;
+    text-decoration: none; color: inherit;
+    display: block;
+  }
+  .clinician-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 36px rgba(0,0,0,.12);
+  }
+  .clinician-card.hidden {
+    display: none;
+  }
+
+  /* Photo area */
+  .clinician-photo {
+    height: 200px; position: relative;
+    overflow: hidden;
+    background: linear-gradient(160deg, #c0d0dc, #8aaec4);
+  }
+  .clinician-photo img {
+    width: 100%; height: 100%;
+    object-fit: cover; object-position: top center;
+    display: block;
+  }
+  .clinician-photo-fallback {
+    width: 100%; height: 100%;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .clinician-photo-fallback svg {
+    width: 56px; height: 56px;
+    stroke: rgba(255,255,255,.5); fill: none; stroke-width: 1;
+  }
+
+  /* Location badge on photo */
+  .loc-badge {
+    position: absolute; bottom: 12px; left: 12px;
+    display: inline-flex; align-items: center; gap: 5px;
+    font-size: 11px; font-weight: 700;
+    padding: 4px 10px; border-radius: 12px;
+    backdrop-filter: blur(8px);
+  }
+  .loc-badge.east, .loc-badge.west {
+    background: rgba(43,108,176,.85); color: #fff;
+  }
+  .loc-badge.virtual {
+    background: rgba(74,124,111,.85); color: #fff;
+  }
+  .loc-badge svg {
+    width: 10px; height: 10px;
+    stroke: currentColor; fill: none; stroke-width: 2.5;
+    flex-shrink: 0;
+  }
+
+  /* Card body */
+  .clinician-body { padding: 22px 20px 20px; }
+  .clinician-name {
+    font-size: 15px; font-weight: 700; color: var(--ink);
+    margin-bottom: 4px; line-height: 1.3;
+  }
+  .clinician-creds {
+    font-size: 11px; color: var(--muted);
+    margin-bottom: 14px; line-height: 1.4;
+  }
+
+  /* Specialty tags */
+  .clinician-tags {
+    display: flex; flex-wrap: wrap; gap: 5px;
+    margin-bottom: 16px;
+  }
+  .clinician-tag {
+    background: var(--tag-bg); color: var(--blue);
+    font-size: 11px; font-weight: 600;
+    padding: 3px 9px; border-radius: 12px;
+  }
+  .clinician-tag.match {
+    background: var(--blue); color: #fff;
+  }
+
+  .profile-link {
+    font-size: 12px; font-weight: 700;
+    color: var(--blue); text-decoration: none;
+    display: inline-flex; align-items: center; gap: 4px;
+    transition: gap .15s;
+  }
+  .profile-link:hover { gap: 7px; }
+
+  /* ══ RESPONSIVE ══ */
+  @media (max-width: 900px) {
+    #ihc-filter-root { padding: 32px 20px 56px; }
+    .clinician-grid { grid-template-columns: repeat(2, 1fr); gap: 16px; }
+    .filter-controls { padding: 20px; }
+  }
+  @media (max-width: 560px) {
+    .clinician-grid { grid-template-columns: 1fr; }
+  }
+</style>
+
+<div id="ihc-filter-root">
+  <!-- Dynamically populated by JS -->
+  <div class="loading-state" id="loadingState">
+    <div class="loading-spinner"></div>
+    <p>Loading our team…</p>
+  </div>
+</div>
+
+<script>
+(function() {
+
+  // ── CONFIG ──────────────────────────────────────────────────
+  // Change this to /therapists-new for the staging page
+  const COLLECTION_SLUG = 'https://www.ihcwestmichigan.com/therapists-new';
+
+  // Location category → display label + CSS class
+  const LOCATION_MAP = {
+    'East Michigan':          { label: 'Grand Rapids – East', cls: 'east' },
+    'IHC West':               { label: 'Wyoming – West',      cls: 'west' },
+    'Virtual':                { label: 'Virtual',             cls: 'virtual' },
+    // legacy categories — map to real locations
+    'First 30 Therapists':    { label: 'Wyoming – West',      cls: 'west' },
+    'Second 30 Therapists':   { label: 'Wyoming – West',      cls: 'west' },
+    'Second 30 Therapists-SP':{ label: 'Wyoming – West',      cls: 'west' },
+  };
+
+  // Categories that are legacy/internal — filter out of location pills
+  const INTERNAL_CATS = new Set([
+    'First 30 Therapists','Second 30 Therapists','Second 30 Therapists-SP'
+  ]);
+
+  // Location display order
+  const LOCATION_ORDER = ['East Michigan','IHC West','Virtual'];
+
+  // ── STATE ───────────────────────────────────────────────────
+  let allClinicians   = [];
+  let activeSpecialty = null;   // string or null
+  let activeLocation  = null;   // string or null
+
+  // ── FETCH ALL PAGES ─────────────────────────────────────────
+  async function fetchAll() {
+    let items = [];
+    let url   = `${COLLECTION_SLUG}?format=json`;
+    while (url) {
+      const res  = await fetch(url);
+      const data = await res.json();
+      items.push(...(data.items || []));
+      url = data.pagination?.nextPage
+        ? `${COLLECTION_SLUG}?format=json&offset=${data.pagination.nextPageOffset}`
+        : null;
+    }
+    return items;
+  }
+
+  // ── PARSE CLINICIAN ─────────────────────────────────────────
+  function parseClinician(item) {
+    // Derive real location from categories (skip internal ones)
+    const realCats = (item.categories || []).filter(c => !INTERNAL_CATS.has(c));
+    const location = realCats[0] || null;
+
+    // Split name and credentials: everything after the first comma is creds
+    const fullTitle = (item.title || '').replace(/\s*\(Copy\)\s*$/, '').trim();
+    const commaIdx  = fullTitle.search(/,\s*[A-Z]/);
+    const name      = commaIdx > -1 ? fullTitle.slice(0, commaIdx).trim() : fullTitle;
+    const creds     = commaIdx > -1 ? fullTitle.slice(commaIdx + 1).trim() : '';
+
+    return {
+      id:       item.id,
+      name,
+      creds,
+      fullTitle,
+      location,
+      tags:     (item.tags || []).map(t => t.trim()).filter(Boolean),
+      photo:    item.assetUrl || null,
+      url:      item.fullUrl  || '#',
+    };
+  }
+
+  // ── BUILD UNIQUE SORTED TAGS & LOCATIONS ────────────────────
+  function buildTaxonomy(clinicians) {
+    const tagSet = new Set();
+    const locSet = new Set();
+    clinicians.forEach(c => {
+      c.tags.forEach(t => tagSet.add(t));
+      if (c.location) locSet.add(c.location);
+    });
+
+    // Sort tags alphabetically
+    const tags = [...tagSet].sort((a, b) => a.localeCompare(b));
+
+    // Sort locations by preferred order
+    const locs = LOCATION_ORDER.filter(l => locSet.has(l));
+
+    return { tags, locs };
+  }
+
+  // ── FILTER LOGIC ────────────────────────────────────────────
+  function matchesCurrent(c) {
+    const specOk = !activeSpecialty || c.tags.includes(activeSpecialty);
+    const locOk  = !activeLocation  || c.location === activeLocation;
+    return specOk && locOk;
+  }
+
+  // ── RENDER ──────────────────────────────────────────────────
+  function locationBadgeHTML(loc) {
+    const mapped = LOCATION_MAP[loc];
+    if (!mapped) return '';
+    const pinSVG = `<svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/></svg>`;
+    const screenSVG = `<svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>`;
+    const icon = mapped.cls === 'virtual' ? screenSVG : pinSVG;
+    return `<span class="loc-badge ${mapped.cls}">${icon}${mapped.label}</span>`;
+  }
+
+  function cardHTML(c) {
+    const photoHTML = c.photo
+      ? `<img src="${c.photo}" alt="${c.name}" loading="lazy" onerror="this.parentNode.innerHTML='<div class=clinician-photo-fallback><svg viewBox=\\'0 0 24 24\\'><path d=\\'M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2\\'/><circle cx=\\'12\\' cy=\\'7\\' r=\\'4\\'/></svg></div>'">`
+      : `<div class="clinician-photo-fallback"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>`;
+
+    const tagsHTML = c.tags.length
+      ? c.tags.map(t => {
+          const isMatch = t === activeSpecialty;
+          return `<span class="clinician-tag${isMatch ? ' match' : ''}">${t}</span>`;
+        }).join('')
+      : '';
+
+    return `
+      <a class="clinician-card" href="${c.url}" data-id="${c.id}">
+        <div class="clinician-photo">
+          ${photoHTML}
+          ${locationBadgeHTML(c.location)}
+        </div>
+        <div class="clinician-body">
+          <div class="clinician-name">${c.name}</div>
+          ${c.creds ? `<div class="clinician-creds">${c.creds}</div>` : ''}
+          ${tagsHTML ? `<div class="clinician-tags">${tagsHTML}</div>` : ''}
+          <span class="profile-link">View Profile →</span>
+        </div>
+      </a>`;
+  }
+
+  function pillsHTML(items, type) {
+    return items.map(item => {
+      const isLoc    = type === 'location';
+      const label    = isLoc ? (LOCATION_MAP[item]?.label || item) : item;
+      const isActive = isLoc ? (activeLocation === item) : (activeSpecialty === item);
+      const cls      = `filter-pill${isLoc ? ' location' : ''}${isActive ? ' active' : ''}`;
+      const attr     = isLoc ? `data-loc="${item}"` : `data-spec="${item}"`;
+      return `<button class="${cls}" ${attr}>${label}</button>`;
+    }).join('');
+  }
+
+  function render() {
+    const root = document.getElementById('ihc-filter-root');
+    const { tags, locs } = buildTaxonomy(allClinicians);
+
+    const visible = allClinicians.filter(matchesCurrent);
+    const hasFilters = activeSpecialty || activeLocation;
+
+    root.innerHTML = `
+      <div class="filter-header">
+        <h2>Meet Our Team</h2>
+        <p>Select a specialty or location to filter, or browse everyone below.</p>
+      </div>
+
+      <div class="filter-controls">
+        ${locs.length ? `
+          <div class="filter-group">
+            <div class="filter-group-label">Location</div>
+            <div class="filter-pills" id="locPills">
+              ${pillsHTML(locs, 'location')}
+            </div>
+          </div>` : ''}
+
+        ${tags.length ? `
+          <div class="filter-group">
+            <div class="filter-group-label">Specialty</div>
+            <div class="filter-pills" id="specPills">
+              ${pillsHTML(tags, 'specialty')}
+            </div>
+          </div>` : ''}
+
+        <div class="filter-actions">
+          <div class="result-summary">
+            Showing <strong>${visible.length}</strong> of <strong>${allClinicians.length}</strong> clinicians
+            ${activeSpecialty ? ` · <em>${activeSpecialty}</em>` : ''}
+            ${activeLocation  ? ` · <em>${LOCATION_MAP[activeLocation]?.label || activeLocation}</em>` : ''}
+          </div>
+          <button class="clear-btn" id="clearBtn" ${!hasFilters ? 'disabled' : ''}>
+            Clear filters
+          </button>
+        </div>
+      </div>
+
+      <div class="clinician-grid" id="clinicianGrid">
+        ${allClinicians.map(c => {
+          const show = matchesCurrent(c);
+          return cardHTML(c).replace('class="clinician-card"',
+            `class="clinician-card${show ? '' : ' hidden'}"`);
+        }).join('')}
+      </div>
+
+      <div class="empty-state" id="emptyState" style="display:${visible.length === 0 ? 'block' : 'none'}">
+        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+        <p>No clinicians match those filters.</p>
+        <span>Try clearing a filter to see more results.</span>
+      </div>
+    `;
+
+    attachEvents();
+  }
+
+  // ── EVENTS ──────────────────────────────────────────────────
+  function attachEvents() {
+    // Specialty pills
+    document.querySelectorAll('.filter-pill:not(.location)').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const spec = btn.dataset.spec;
+        activeSpecialty = activeSpecialty === spec ? null : spec;
+        render();
+      });
+    });
+
+    // Location pills
+    document.querySelectorAll('.filter-pill.location').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const loc = btn.dataset.loc;
+        activeLocation = activeLocation === loc ? null : loc;
+        render();
+      });
+    });
+
+    // Clear
+    const clearBtn = document.getElementById('clearBtn');
+    if (clearBtn) {
+      clearBtn.addEventListener('click', () => {
+        activeSpecialty = null;
+        activeLocation  = null;
+        render();
+      });
+    }
+  }
+
+  // ── INIT ────────────────────────────────────────────────────
+  async function init() {
+    try {
+      const raw = await fetchAll();
+      allClinicians = raw.map(parseClinician);
+      render();
+    } catch (err) {
+      console.error('[IHC Filter] Error:', err);
+      document.getElementById('ihc-filter-root').innerHTML = `
+        <div class="loading-state">
+          <p>Couldn't load clinician data. Please refresh the page.</p>
+        </div>`;
+    }
+  }
+
+  // Wait for DOM then run
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+
+})();
+</script>
