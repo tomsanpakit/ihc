@@ -209,6 +209,12 @@
   .profile-link:hover { gap: 7px; }
 
   /* ══ RESPONSIVE ══ */
+
+  /* ══ SQUARESPACE FULL-WIDTH BREAKOUT ══ */
+  /* Force the plugin section to use full page width */
+  .sqs-block-code { width: 100% !important; max-width: 100% !important; }
+  .sqs-row .sqs-col-12 { width: 100% !important; }
+
   @media (max-width: 900px) {
     #ihc-filter-root { padding: 32px 20px 56px; }
     .clinician-grid { grid-template-columns: repeat(2, 1fr); gap: 16px; }
