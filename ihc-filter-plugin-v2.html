@@ -138,10 +138,11 @@
     overflow: hidden;
     box-shadow: 0 4px 20px rgba(0,0,0,.07);
     transition: transform .2s, box-shadow .2s;
-    text-decoration: none; color: inherit; display: block;
+    color: inherit; display: block;
   }
   .clinician-card:hover { transform: translateY(-4px); box-shadow: 0 12px 36px rgba(0,0,0,.12); }
   .clinician-card.hidden { display: none; }
+  .card-photo-link { display: block; text-decoration: none; }
 
   /* Photo */
   .clinician-photo {
@@ -398,15 +399,18 @@
         ).join('') + '</div>'
       : '';
 
-    return '<a class="clinician-card" href="' + c.url + '">'
+    // Use div wrapper (not <a>) to avoid invalid block-in-inline nesting
+    return '<div class="clinician-card" data-id="' + c.id + '">'
+      + '<a class="card-photo-link" href="' + c.url + '">'
       + '<div class="clinician-photo">' + ph + badge(c.location) + '</div>'
+      + '</a>'
       + '<div class="clinician-body">'
       + '<div class="clinician-name">' + c.name + '</div>'
       + (c.creds ? '<div class="clinician-creds">' + c.creds + '</div>' : '')
       + contactHTML(c)
       + tags
-      + '<span class="profile-link">View Profile →</span>'
-      + '</div></a>';
+      + '<a class="profile-link" href="' + c.url + '">View Profile →</a>'
+      + '</div></div>';
   }
 
   function pillsHTML(tags, type) {
@@ -504,14 +508,37 @@
     // Clear
     const cb = document.getElementById('clearBtn');
     if (cb) cb.addEventListener('click', () => { specFilter = null; locFilter = null; searchQuery = ''; render(); });
-    // Search — debounced
+    // Search — update cards without full re-render to preserve cursor
     const si = document.getElementById('searchInput');
     if (si) {
-      si.focus(); // keep focus after re-render
       let timer;
       si.addEventListener('input', e => {
         clearTimeout(timer);
-        timer = setTimeout(() => { searchQuery = e.target.value.trim(); render(); }, 200);
+        timer = setTimeout(() => {
+          searchQuery = e.target.value.trim();
+          // Update card visibility and summary without rebuilding DOM
+          let visible = 0;
+          document.querySelectorAll('.clinician-card').forEach(card => {
+            const id = card.dataset.id;
+            const c = all.find(x => x.id === id);
+            if (!c) return;
+            const show = matches(c);
+            card.classList.toggle('hidden', !show);
+            if (show) visible++;
+          });
+          // Update summary text
+          const sum = document.querySelector('.result-summary');
+          if (sum) sum.innerHTML = 'Showing <strong>' + visible + '</strong> of <strong>' + all.length + '</strong> clinicians'
+            + (specFilter ? ' · <em>' + specFilter + '</em>' : '')
+            + (locFilter  ? ' · <em>' + (LOC_MAP[locFilter]?.label || locFilter) + '</em>' : '')
+            + (searchQuery ? ' · <em>“' + escHtml(searchQuery) + '”</em>' : '');
+          // Update clear button
+          const cb = document.getElementById('clearBtn');
+          if (cb) cb.disabled = !(specFilter || locFilter || searchQuery);
+          // Empty state
+          const es = document.getElementById('emptyState');
+          if (es) es.style.display = visible === 0 ? 'block' : 'none';
+        }, 150);
       });
     }
   }
