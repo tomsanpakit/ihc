@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IHC – Therapist Filter Plugin v2</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@300;400;600;700&family=Playfair+Display:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --page-bg:  #e8edf2;
+    --blue:     #2b6cb0;
+    --blue-lt:  #ebf4fb;
+    --white:    #ffffff;
+    --ink:      #1a2733;
+    --muted:    #6b7c8d;
+    --border:   #d0dce8;
+    --tag-bg:   #ddeef8;
+    --sage:     #4a7c6f;
+    --sage-lt:  #edf5f3;
+    --font-body: 'Nunito Sans', sans-serif;
+    --font-disp: 'Playfair Display', serif;
+  }
+
+  body { font-family: var(--font-body); background: var(--page-bg); color: var(--ink); line-height: 1.6; }
+
+  /* ══ ROOT ══ */
+  #ihc-filter-root { max-width: 1200px; margin: 0 auto; padding: 48px 48px 72px; }
+
+  /* ══ SEARCH BOX ══ */
+  .search-wrap {
+    position: relative;
+    margin-bottom: 28px;
+  }
+  .search-wrap svg {
+    position: absolute;
+    left: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 18px; height: 18px;
+    stroke: var(--muted); fill: none; stroke-width: 2;
+    stroke-linecap: round; stroke-linejoin: round;
+    pointer-events: none;
+  }
+  .search-input {
+    width: 100%;
+    padding: 13px 16px 13px 46px;
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
+    font-size: 14px;
+    font-family: var(--font-body);
+    color: var(--ink);
+    background: var(--white);
+    transition: border-color .15s, box-shadow .15s;
+    outline: none;
+  }
+  .search-input:focus {
+    border-color: var(--blue);
+    box-shadow: 0 0 0 3px rgba(43,108,176,.1);
+  }
+  .search-input::placeholder { color: var(--muted); }
+
+  /* ══ FILTER CONTROLS ══ */
+  .filter-controls {
+    background: var(--white);
+    border-radius: 16px;
+    padding: 28px 28px 24px;
+    box-shadow: 0 3px 16px rgba(0,0,0,.07);
+    margin-bottom: 36px;
+  }
+
+  /* Specialty groups */
+  .filter-group { margin-bottom: 20px; }
+  .filter-group:last-child { margin-bottom: 0; }
+  .filter-group-label {
+    font-size: 11px; font-weight: 700;
+    letter-spacing: .12em; text-transform: uppercase;
+    color: var(--muted); margin-bottom: 10px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .filter-group-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+  .filter-pills { display: flex; flex-wrap: wrap; gap: 8px; }
+
+  .filter-pill {
+    padding: 6px 14px; border-radius: 50px;
+    font-size: 12px; font-weight: 600;
+    cursor: pointer; border: 1.5px solid var(--border);
+    background: var(--white); color: var(--muted);
+    transition: all .15s; user-select: none;
+    font-family: var(--font-body);
+  }
+  .filter-pill:hover { border-color: var(--blue); color: var(--blue); }
+  .filter-pill.active { background: var(--blue); color: #fff; border-color: var(--blue); }
+  .filter-pill.location.active { background: var(--sage); border-color: var(--sage); }
+
+  /* Filter footer */
+  .filter-actions {
+    display: flex; align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap; gap: 12px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+    margin-top: 20px;
+  }
+  .result-summary { font-size: 13px; color: var(--muted); }
+  .result-summary strong { color: var(--ink); }
+  .clear-btn {
+    font-size: 12px; font-weight: 700; color: var(--muted);
+    background: none; border: none; cursor: pointer;
+    padding: 6px 12px; border-radius: 6px;
+    transition: all .15s; font-family: var(--font-body);
+  }
+  .clear-btn:hover { background: var(--page-bg); color: var(--ink); }
+  .clear-btn:disabled { opacity: .35; cursor: default; }
+
+  /* ══ LOADING / EMPTY STATES ══ */
+  .loading-state { text-align: center; padding: 60px 20px; color: var(--muted); font-size: 14px; }
+  .loading-spinner {
+    width: 32px; height: 32px;
+    border: 3px solid var(--border);
+    border-top-color: var(--blue);
+    border-radius: 50%;
+    animation: spin .7s linear infinite;
+    margin: 0 auto 16px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .empty-state { display: none; text-align: center; padding: 60px 20px; color: var(--muted); }
+  .empty-state svg { width: 36px; height: 36px; stroke: var(--border); fill: none; stroke-width: 1.5; margin: 0 auto 14px; display: block; }
+  .empty-state p { font-size: 15px; margin-bottom: 6px; }
+  .empty-state span { font-size: 13px; }
+
+  /* ══ CLINICIAN GRID ══ */
+  .clinician-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+
+  .clinician-card {
+    background: var(--white); border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0,0,0,.07);
+    transition: transform .2s, box-shadow .2s;
+    text-decoration: none; color: inherit; display: block;
+  }
+  .clinician-card:hover { transform: translateY(-4px); box-shadow: 0 12px 36px rgba(0,0,0,.12); }
+  .clinician-card.hidden { display: none; }
+
+  /* Photo */
+  .clinician-photo {
+    height: 200px; position: relative; overflow: hidden;
+    background: linear-gradient(160deg, #c0d0dc, #8aaec4);
+  }
+  .clinician-photo img { width: 100%; height: 100%; object-fit: cover; object-position: top center; display: block; }
+  .clinician-photo-fallback { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; }
+  .clinician-photo-fallback svg { width: 56px; height: 56px; stroke: rgba(255,255,255,.5); fill: none; stroke-width: 1; }
+
+  /* Location badge */
+  .loc-badge {
+    position: absolute; bottom: 12px; left: 12px;
+    display: inline-flex; align-items: center; gap: 5px;
+    font-size: 11px; font-weight: 700;
+    padding: 4px 10px; border-radius: 12px;
+    backdrop-filter: blur(8px);
+  }
+  .loc-badge.east, .loc-badge.west { background: rgba(43,108,176,.85); color: #fff; }
+  .loc-badge.virtual { background: rgba(74,124,111,.85); color: #fff; }
+  .loc-badge svg { width: 10px; height: 10px; stroke: currentColor; fill: none; stroke-width: 2.5; flex-shrink: 0; }
+
+  /* Card body */
+  .clinician-body { padding: 20px 20px 18px; }
+  .clinician-name { font-size: 15px; font-weight: 700; color: var(--ink); margin-bottom: 2px; line-height: 1.3; }
+  .clinician-creds { font-size: 11px; color: var(--muted); margin-bottom: 12px; line-height: 1.4; }
+
+  /* Contact info */
+  .clinician-contact { margin-bottom: 12px; display: flex; flex-direction: column; gap: 4px; }
+  .clinician-contact-row {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 12px; color: var(--muted);
+    text-decoration: none;
+  }
+  .clinician-contact-row svg { width: 11px; height: 11px; stroke: var(--muted); fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; }
+  a.clinician-contact-row:hover { color: var(--blue); }
+  a.clinician-contact-row:hover svg { stroke: var(--blue); }
+  .session-type {
+    display: inline-flex; align-items: center; gap: 5px;
+    font-size: 11px; font-weight: 600; color: var(--muted);
+    background: var(--page-bg); padding: 2px 8px; border-radius: 10px;
+    align-self: flex-start; margin-top: 2px;
+  }
+
+  /* Tags */
+  .clinician-tags { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 14px; }
+  .clinician-tag { background: var(--tag-bg); color: var(--blue); font-size: 11px; font-weight: 600; padding: 3px 9px; border-radius: 12px; }
+  .clinician-tag.match { background: var(--blue); color: #fff; }
+
+  .profile-link { font-size: 12px; font-weight: 700; color: var(--blue); text-decoration: none; display: inline-flex; align-items: center; gap: 4px; }
+  .profile-link:hover { gap: 7px; }
+
+  /* ══ RESPONSIVE ══ */
+  @media (max-width: 900px) {
+    #ihc-filter-root { padding: 32px 20px 56px; }
+    .clinician-grid { grid-template-columns: repeat(2, 1fr); gap: 16px; }
+    .filter-controls { padding: 20px; }
+  }
+  @media (max-width: 560px) {
+    .clinician-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div id="ihc-filter-root">
+  <div class="loading-state" id="loadingState">
+    <div class="loading-spinner"></div>
+    <p>Loading our team…</p>
+  </div>
+</div>
+
+<script>
+(function() {
+
+  const SLUG = 'https://www.ihcwestmichigan.com/therapists-new';
+
+  // ── LOCATION MAP ─────────────────────────────────────────────
+  const LOC_MAP = {
+    'East Michigan':           { label: 'Grand Rapids – East', cls: 'east' },
+    'IHC West':                { label: 'Wyoming – West',      cls: 'west' },
+    'Virtual':                 { label: 'Virtual',             cls: 'virtual' },
+    'First 30 Therapists':     { label: 'Wyoming – West',      cls: 'west' },
+    'Second 30 Therapists':    { label: 'Wyoming – West',      cls: 'west' },
+    'Second 30 Therapists-SP': { label: 'Wyoming – West',      cls: 'west' },
+  };
+  const INTERNAL = new Set(['First 30 Therapists','Second 30 Therapists','Second 30 Therapists-SP']);
+  const LOC_ORDER = ['East Michigan','IHC West','Virtual'];
+
+  // ── SPECIALTY TAXONOMY ───────────────────────────────────────
+  // Tags are matched case-insensitively; unmatched tags go to Other
+  const TAXONOMY = [
+    {
+      group: 'Individual Therapy',
+      tags: ['child (0–12)','child','children','children 0-3','adolescent (13–17)','adolescent','adolescents','teens','adult (18+)','adult','adults','older adult (65+)','older adult','seniors','college students']
+    },
+    {
+      group: 'Relational Therapy',
+      tags: ['couples','family','co-parenting','blended families','separation & divorce','infidelity','parenting']
+    },
+    {
+      group: 'Treatment Interests',
+      tags: ['ocd','anxiety','depression','trauma','ptsd','ptsd / trauma','grief','grief / loss','grief and loss','adhd','just adhd','adhd assessment','lgbtq+','lgbtq','lgbtq+ affirming','addiction','substance abuse','substance use','substance use evaluations','eating disorder & body image','eating disorder','eating disorders','body image','self-harm','self harm','self-harm/cutting','suicidal ideation','personality disorder','personality disorders','bipolar','bi-polar','autism','neurodiversity','neurodiverse','racial trauma','racial identity','racial identity development','religious trauma','spiritual issues','spirituality','sexual abuse','sexual identity','gender identity','sexual identity & gender','postpartum depression','postpartum anxiety','post partum','perinatal mood and anxiety disorders','perinatal','pregnancy','infertility','infant loss / miscarriage','chronic illness','chronic pain','health anxiety','stress management','emotional regulation','anger management','skin picking','hair pulling','tic disorder','tourette\'s disorder','selective mutism','specific phobias','codependency','relationship struggles','relationship violence','self-esteem issues','men\'s issues','athletes','military veterans & families','first responder & frontline worker support','frontline workers','helping professions','co-occurring disorders','social skills','childhood abuse','attachment & bonding','developmental & behavioral concerns','oppositional & defiant behaviors','delinquency','adoption & foster care','bullying','racial identity development','perimenopause and postmenopause','menopause','women','academic achievement','chronic illness and disease management','abortion recovery','testing']
+    },
+    {
+      group: 'Therapeutic Approaches',
+      tags: ['exposure response prevention (erp)','erp','cognitive processing therapy (cpt)','cpt','dialectical behavioral therapy (dbt)','dbt','cbt','cognitive behavioral therapy','emdr','mindfulness','trauma-informed care','trauma informed','attachment theory','interpersonal therapy','psychodynamic','neurodiverse-affirmed care','faith based counseling','christian','christian counseling','spanish-speaking counseling','spanish speaking','spanish','motivational interviewing','play therapy','biofeedback','health coaching','coaching for kids','executive function']
+    },
+  ];
+
+  // Build a fast lookup: lowercase tag → group name
+  const TAG_GROUP = {};
+  TAXONOMY.forEach(({ group, tags }) => {
+    tags.forEach(t => { TAG_GROUP[t.toLowerCase()] = group; });
+  });
+
+  function getGroup(tag) {
+    return TAG_GROUP[tag.toLowerCase()] || 'Other';
+  }
+
+  // ── STATE ────────────────────────────────────────────────────
+  let all = [], specFilter = null, locFilter = null, searchQuery = '';
+
+  // ── FETCH ────────────────────────────────────────────────────
+  async function fetchAll() {
+    let items = [], url = SLUG + '?format=json';
+    while (url) {
+      const r = await fetch(url), d = await r.json();
+      items.push(...(d.items || []));
+      url = d.pagination?.nextPage ? SLUG + '?format=json&offset=' + d.pagination.nextPageOffset : null;
+    }
+    return items;
+  }
+
+  // ── PARSE EXCERPT → phone, email, sessionType ────────────────
+  function parseExcerpt(html) {
+    if (!html) return {};
+    const tmp = document.createElement('div');
+    tmp.innerHTML = html;
+    const lines = [...tmp.querySelectorAll('p')]
+      .map(p => p.textContent.trim())
+      .filter(Boolean);
+
+    let phone = '', email = '', sessionType = '';
+    lines.forEach(line => {
+      if (/^\d{3}-\d{3}-\d{4}/.test(line)) phone = line;
+      else if (line.includes('@')) email = line;
+      else if (/in-person|telehealth/i.test(line)) sessionType = line;
+    });
+    return { phone, email, sessionType };
+  }
+
+  // ── PARSE CLINICIAN ──────────────────────────────────────────
+  function parse(item) {
+    const cats = (item.categories || []).filter(c => !INTERNAL.has(c));
+    const location = cats[0] || null;
+    const t = (item.title || '').replace(/\s*\(Copy\)\s*$/, '').trim();
+    const ci = t.search(/,\s*[A-Z]/);
+    const { phone, email, sessionType } = parseExcerpt(item.excerpt || '');
+    return {
+      id: item.id,
+      name: ci > -1 ? t.slice(0, ci).trim() : t,
+      creds: ci > -1 ? t.slice(ci + 1).trim() : '',
+      location,
+      tags: (item.tags || []).map(x => x.trim()).filter(Boolean),
+      photo: item.assetUrl || null,
+      url: item.fullUrl || '#',
+      phone, email, sessionType,
+    };
+  }
+
+  // ── TAXONOMY STRUCTURE for current tags ─────────────────────
+  function buildFilterGroups(clinicians) {
+    const tagSet = new Set(), locSet = new Set();
+    clinicians.forEach(c => {
+      c.tags.forEach(t => tagSet.add(t));
+      if (c.location) locSet.add(c.location);
+    });
+
+    // Group tags by taxonomy
+    const grouped = {};
+    tagSet.forEach(tag => {
+      const g = getGroup(tag);
+      if (!grouped[g]) grouped[g] = [];
+      grouped[g].push(tag);
+    });
+
+    // Sort within each group alphabetically
+    Object.values(grouped).forEach(arr => arr.sort((a, b) => a.localeCompare(b)));
+
+    // Return in taxonomy order, then Other last
+    const ordered = [];
+    TAXONOMY.forEach(({ group }) => {
+      if (grouped[group]) ordered.push({ group, tags: grouped[group] });
+    });
+    if (grouped['Other']) ordered.push({ group: 'Other', tags: grouped['Other'] });
+
+    return {
+      groups: ordered,
+      locs: LOC_ORDER.filter(l => locSet.has(l)),
+    };
+  }
+
+  // ── MATCH ────────────────────────────────────────────────────
+  function matches(c) {
+    if (specFilter && !c.tags.includes(specFilter)) return false;
+    if (locFilter && c.location !== locFilter) return false;
+    if (searchQuery) {
+      const q = searchQuery.toLowerCase();
+      const inName = c.name.toLowerCase().includes(q);
+      const inTags = c.tags.some(t => t.toLowerCase().includes(q));
+      const inLoc  = (LOC_MAP[c.location]?.label || '').toLowerCase().includes(q);
+      if (!inName && !inTags && !inLoc) return false;
+    }
+    return true;
+  }
+
+  // ── RENDER HELPERS ───────────────────────────────────────────
+  function badge(loc) {
+    const m = LOC_MAP[loc];
+    if (!m) return '';
+    const pin = '<svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/></svg>';
+    const screen = '<svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>';
+    return '<span class="loc-badge ' + m.cls + '">' + (m.cls === 'virtual' ? screen : pin) + m.label + '</span>';
+  }
+
+  function contactHTML(c) {
+    let html = '<div class="clinician-contact">';
+    if (c.phone) {
+      html += '<a class="clinician-contact-row" href="tel:' + c.phone.replace(/\D/g,'') + '">'
+        + '<svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2A19.8 19.8 0 0 1 3.09 5.18 2 2 0 0 1 5.07 3h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L9.09 10.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 23 18z"/></svg>'
+        + c.phone + '</a>';
+    }
+    if (c.email) {
+      html += '<a class="clinician-contact-row" href="mailto:' + c.email + '">'
+        + '<svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>'
+        + c.email + '</a>';
+    }
+    if (c.sessionType) {
+      html += '<span class="session-type">' + c.sessionType + '</span>';
+    }
+    html += '</div>';
+    return html;
+  }
+
+  function cardHTML(c) {
+    const ph = c.photo
+      ? '<img src="' + c.photo + '" alt="' + c.name + '" loading="lazy">'
+      : '<div class="clinician-photo-fallback"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>';
+
+    const tags = c.tags.length
+      ? '<div class="clinician-tags">' + c.tags.map(t =>
+          '<span class="clinician-tag' + (t === specFilter ? ' match' : '') + '">' + t + '</span>'
+        ).join('') + '</div>'
+      : '';
+
+    return '<a class="clinician-card" href="' + c.url + '">'
+      + '<div class="clinician-photo">' + ph + badge(c.location) + '</div>'
+      + '<div class="clinician-body">'
+      + '<div class="clinician-name">' + c.name + '</div>'
+      + (c.creds ? '<div class="clinician-creds">' + c.creds + '</div>' : '')
+      + contactHTML(c)
+      + tags
+      + '<span class="profile-link">View Profile →</span>'
+      + '</div></a>';
+  }
+
+  function pillsHTML(tags, type) {
+    return tags.map(tag => {
+      const isLoc = type === 'location';
+      const label = isLoc ? (LOC_MAP[tag]?.label || tag) : tag;
+      const isActive = isLoc ? locFilter === tag : specFilter === tag;
+      const cls = 'filter-pill' + (isLoc ? ' location' : '') + (isActive ? ' active' : '');
+      const attr = isLoc ? 'data-loc="' + tag + '"' : 'data-spec="' + tag + '"';
+      return '<button class="' + cls + '" ' + attr + '>' + label + '</button>';
+    }).join('');
+  }
+
+  // ── RENDER ───────────────────────────────────────────────────
+  function render() {
+    const root = document.getElementById('ihc-filter-root');
+    const { groups, locs } = buildFilterGroups(all);
+    const visible = all.filter(matches);
+    const hasFilters = specFilter || locFilter || searchQuery;
+
+    // Search box
+    let html = '<div class="search-wrap">'
+      + '<svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>'
+      + '<input class="search-input" id="searchInput" type="text" placeholder="Search by name, specialty, or location…" value="' + escHtml(searchQuery) + '">'
+      + '</div>';
+
+    // Filter controls
+    html += '<div class="filter-controls">';
+
+    // Location group
+    if (locs.length) {
+      html += '<div class="filter-group">'
+        + '<div class="filter-group-label">Location</div>'
+        + '<div class="filter-pills">' + pillsHTML(locs, 'location') + '</div>'
+        + '</div>';
+    }
+
+    // Specialty groups from taxonomy
+    groups.forEach(({ group, tags }) => {
+      html += '<div class="filter-group">'
+        + '<div class="filter-group-label">' + group + '</div>'
+        + '<div class="filter-pills">' + pillsHTML(tags, 'specialty') + '</div>'
+        + '</div>';
+    });
+
+    // Footer
+    html += '<div class="filter-actions">'
+      + '<div class="result-summary">Showing <strong>' + visible.length + '</strong> of <strong>' + all.length + '</strong> clinicians'
+      + (specFilter ? ' · <em>' + specFilter + '</em>' : '')
+      + (locFilter  ? ' · <em>' + (LOC_MAP[locFilter]?.label || locFilter) + '</em>' : '')
+      + (searchQuery ? ' · <em>"' + escHtml(searchQuery) + '"</em>' : '')
+      + '</div>'
+      + '<button class="clear-btn" id="clearBtn"' + (hasFilters ? '' : ' disabled') + '>Clear filters</button>'
+      + '</div></div>';
+
+    // Grid
+    html += '<div class="clinician-grid">'
+      + all.map(c => {
+          const show = matches(c);
+          return cardHTML(c).replace('class="clinician-card"', 'class="clinician-card' + (show ? '' : ' hidden') + '"');
+        }).join('')
+      + '</div>';
+
+    // Empty state
+    html += '<div class="empty-state" id="emptyState" style="display:' + (visible.length === 0 ? 'block' : 'none') + '">'
+      + '<svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>'
+      + '<p>No clinicians match those filters.</p>'
+      + '<span>Try adjusting your search or clearing a filter.</span>'
+      + '</div>';
+
+    root.innerHTML = html;
+    attachEvents();
+  }
+
+  function escHtml(s) {
+    return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  // ── EVENTS ───────────────────────────────────────────────────
+  function attachEvents() {
+    // Specialty pills
+    document.querySelectorAll('.filter-pill:not(.location)').forEach(b => {
+      b.addEventListener('click', () => {
+        specFilter = specFilter === b.dataset.spec ? null : b.dataset.spec;
+        render();
+      });
+    });
+    // Location pills
+    document.querySelectorAll('.filter-pill.location').forEach(b => {
+      b.addEventListener('click', () => {
+        locFilter = locFilter === b.dataset.loc ? null : b.dataset.loc;
+        render();
+      });
+    });
+    // Clear
+    const cb = document.getElementById('clearBtn');
+    if (cb) cb.addEventListener('click', () => { specFilter = null; locFilter = null; searchQuery = ''; render(); });
+    // Search — debounced
+    const si = document.getElementById('searchInput');
+    if (si) {
+      si.focus(); // keep focus after re-render
+      let timer;
+      si.addEventListener('input', e => {
+        clearTimeout(timer);
+        timer = setTimeout(() => { searchQuery = e.target.value.trim(); render(); }, 200);
+      });
+    }
+  }
+
+  // ── INIT ─────────────────────────────────────────────────────
+  async function init() {
+    try {
+      const raw = await fetchAll();
+      all = raw.map(parse);
+      render();
+    } catch(e) {
+      console.error('[IHC Filter]', e);
+      document.getElementById('ihc-filter-root').innerHTML =
+        '<div class="loading-state"><p>Couldn\'t load clinician data. Please refresh the page.</p></div>';
+    }
+  }
+
+  document.readyState === 'loading'
+    ? document.addEventListener('DOMContentLoaded', init)
+    : init();
+
+})();
+</script>
+</body>
+</html>
