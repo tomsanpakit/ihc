@@ -209,8 +209,10 @@
   .clinician-contact-row {
     display: flex; align-items: center; gap: 5px;
     font-size: 11px; color: var(--muted); text-decoration: none;
+    min-width: 0; overflow: hidden;
   }
   .clinician-contact-row svg { width: 10px; height: 10px; stroke: var(--muted); fill: none; stroke-width: 2; stroke-linecap: round; flex-shrink: 0; }
+  .clinician-contact-row span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
   a.clinician-contact-row:hover { color: var(--blue); }
   a.clinician-contact-row:hover svg { stroke: var(--blue); }
   .session-type {
