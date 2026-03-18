@@ -466,8 +466,8 @@
 
   function contactHTML(c) {
     let h = '<div class="clinician-contact">';
-    if (c.phone) h += '<a class="clinician-contact-row" href="tel:' + c.phone.replace(/\D/g,'') + '"><svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2A19.8 19.8 0 0 1 3.09 5.18 2 2 0 0 1 5.07 3h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L9.09 10.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 23 18z"/></svg>' + escHtml(c.phone) + '</a>';
-    if (c.email) h += '<a class="clinician-contact-row" href="mailto:' + c.email + '"><svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>' + escHtml(c.email) + '</a>';
+    if (c.phone) h += '<a class="clinician-contact-row" href="tel:' + c.phone.replace(/\D/g,'') + '"><svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2A19.8 19.8 0 0 1 3.09 5.18 2 2 0 0 1 5.07 3h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L9.09 10.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 23 18z"/></svg>' + '<span>' + escHtml(c.phone) + '</span></a>';
+    if (c.email) h += '<a class="clinician-contact-row" href="mailto:' + c.email + '"><svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>' + '<span>' + escHtml(c.email) + '</span></a>';
     if (c.sessionType) h += '<span class="session-type">' + escHtml(c.sessionType) + '</span>';
     return h + '</div>';
   }
