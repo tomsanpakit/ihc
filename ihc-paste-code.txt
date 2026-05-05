@@ -293,13 +293,92 @@
 
   const TAXONOMY = [
     { group: 'Individual Therapy',
-      tags: ['child (0–12)','child','children','children 0-3','adolescent (13–17)','adolescent','adolescents','teens','adult (18+)','adult','adults','older adult (65+)','older adult','seniors','college students'] },
+      tags: [
+        'children 0-6','children 4+','children 6+','children 10+',
+        'child','children','children 0-3',
+        'adolescents','adolescent','teens',
+        'young adults','adults','adult',
+        'seniors','older adult','older adult (65+)','college students'
+      ]
+    },
     { group: 'Relational Therapy',
-      tags: ['couples','couples / marriage','family','co-parenting','blended families','separation & divorce','infidelity','parenting'] },
+      tags: [
+        'couples','couples/marriage','couples / marriage','family',
+        'co-parenting','blended families','separation & divorce',
+        'separation/divorce','divorce','infidelity','marital affairs',
+        'parenting','co-parenting'
+      ]
+    },
     { group: 'Treatment Interests',
-      tags: ['ocd','anxiety','depression','trauma','ptsd','ptsd / trauma','grief','grief / loss','grief and loss','adhd','just adhd','lgbtq+','lgbtq','addiction','substance abuse','substance use','eating disorder & body image','eating disorder','eating disorders','body image','self-harm','self harm','suicidal ideation','personality disorder','personality disorders','bipolar','bi-polar','autism','neurodiversity','racial trauma','racial identity','racial identity development','religious trauma','spiritual issues','spirituality','sexual abuse','sexual identity','gender identity','postpartum depression','postpartum anxiety','post partum','perinatal','perinatal / pregnancy / postpartum','pregnancy','infertility','infant loss / miscarriage','chronic illness','chronic pain','health anxiety','stress management','emotional regulation','anger management','skin picking','hair pulling','tic disorder',"tourette's disorder",'selective mutism','specific phobias','codependency','relationship struggles','self-esteem issues',"men's issues",'athletes','military veterans & families','first responder','frontline workers','helping professions','social skills','childhood abuse','adoption & foster care','bullying','perimenopause','menopause','women','academic achievement','abortion recovery','testing','neonatal'] },
+      tags: [
+        'academic achievement','adhd','adoption','addictive behaviors',
+        'addiction','substance use','substance abuse',
+        "asperger's syndrome",'autism spectrum disorder','autism','neurodiversity',
+        'anger management','anxiety','attachment issues','attachment & bonding',
+        'athletes','behavioral concerns','developmental & behavioral concerns',
+        'bi-polar i & ii','bi-polar','bipolar','blended families','body image',
+        'boundary setting issues','career','chronic pain/chronic illness',
+        'chronic pain','chronic illness','chronic illness and disease management',
+        'co-occurring disorders','codependency','complex childhood trauma',
+        'childhood abuse','cultural concerns','depression',
+        'developmental concerns','delinquency','partner abuse/violence',
+        'eating disorders','eating disorder','eating disorder & body image',
+        'emerging adulthood','executive function',
+        'existential concerns','foster care','adoption & foster care',
+        'frontliner & first responder support','first responder','frontline workers',
+        'helping professions','military/veterans/families','military veterans & families',
+        'grief/loss','grief / loss','grief and loss','health anxiety',
+        'infant loss/miscarriage','infant loss / miscarriage','infertility',
+        'insomnia','lgbtq+','lgbtq','life transitions',
+        'mens issues',"men's issues",'neurodiversity','neurodiverse',
+        'ocd','oppositional defiant behaviors',
+        'oppositional & defiant behaviors','delinquency','parenting',
+        'peer relationship','perimenopause/menopause/post-menopause',
+        'perimenopause','menopause','women','women's issues',
+        'personality disorders','personality disorder','phobias','specific phobias',
+        'prenatal/perinatal/postpartum','perinatal / pregnancy / postpartum',
+        'perinatal','postpartum depression','postpartum anxiety','pregnancy',
+        'ptsd','ptsd / trauma','race-based trauma','racial trauma',
+        'racial identity development','racial identity',
+        'religious trauma','school issues','selective mutism',
+        'self-esteem','self-esteem issues','self harm','self-harm',
+        'sensory processing issues','sexual abuse','sexual identity',
+        'gender identity','skin picking/hair pulling','skin picking','hair pulling',
+        'stress management','spiritual issues','spirituality',
+        'substance use','substance abuse','suicidal ideation',
+        'survivors of narcissistic abuse','testing',
+        "tourettes/tic disorder","tourette's disorder",'tic disorder',
+        'trauma','separation/divorce','social skills','bullying',
+        'neonatal','academic achievement','abortion recovery',
+        'biofeedback','health coaching','coaching for kids'
+      ]
+    },
     { group: 'Therapeutic Approaches',
-      tags: ['erp','cpt','dbt','cbt','emdr','mindfulness','trauma-informed','attachment theory','interpersonal therapy','psychodynamic','faith based counseling','christian','christian counseling','spanish-speaking','spanish speaking','motivational interviewing','play therapy','health coaching','coaching for kids','executive function','act','biofeedback'] },
+      tags: [
+        'act','art therapy','cbt','cbt-i','cpt',
+        'faith-based counseling','faith based counseling','christian','christian counseling',
+        'culturally-informed therapy','dbt','emdr',
+        'emotionally focused couples therapy','exposure response prevention (erp)','erp',
+        'filial therapy','gottman couples therapy',
+        'health coaching','inference-based cbt',
+        'internal family systems','interpersonal therapy',
+        'mindfulness','motivational interviewing',
+        'music therapy','narrative therapy','person centered',
+        'play therapy','polyvagal theory','prolonged exposure',
+        'psychodynamic','queer & feminist approach',
+        'sex therapy','solution-focused treatment',
+        'somatic therapy','strengths-based treatment',
+        'theraplay','trauma focused cbt','trauma informed therapy',
+        'trauma-informed','trauma-informed care',
+        'attachment theory','biofeedback','executive function'
+      ]
+    },
+    { group: 'Bilingual Services',
+      tags: [
+        'spanish-speaking','spanish speaking','spanish',
+        'spanish-speaking counseling'
+      ]
+    },
   ];
 
   const TAG_GROUP = {};
