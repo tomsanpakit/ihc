@@ -229,10 +229,11 @@
     'Virtual': { label: 'Virtual', cls: 'virtual' },
     'First 30 Therapists': { label: 'Wyoming - West', cls: 'west' },
     'Second 30 Therapists': { label: 'Wyoming - West', cls: 'west' },
-    'Second 30 Therapists-SP': { label: 'Wyoming - West', cls: 'west' }
+    'Second 30 Therapists-SP': { label: 'Wyoming - West', cls: 'west' },
+    'Connecticut': { label: 'Licensed in Connecticut', cls: 'east' }
   };
   const INTERNAL = new Set(['First 30 Therapists', 'Second 30 Therapists', 'Second 30 Therapists-SP']);
-  const LOC_ORDER = ['East Michigan', 'IHC West', 'Virtual'];
+  const LOC_ORDER = ['East Michigan', 'IHC West', 'Virtual', 'Connecticut'];
   const TAG_CANONICAL = {
     "asperger's syndrome": "Asperger's Syndrome",
     'co-occuring disorders': 'Co-Occuring Disorders',
