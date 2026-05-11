@@ -221,9 +221,9 @@
 
 <script>
 (function() {
-  var SLUG = '/therapists-new';
-  var SEE_MORE_LIMIT = 6;
-  var LOC_MAP = {
+  const SLUG = '/therapists-new';
+  const SEE_MORE_LIMIT = 6;
+  const LOC_MAP = {
     'East Michigan': { label: 'Grand Rapids - East', cls: 'east' },
     'IHC West': { label: 'Wyoming - West', cls: 'west' },
     'Virtual': { label: 'Virtual', cls: 'virtual' },
@@ -231,247 +231,231 @@
     'Second 30 Therapists': { label: 'Wyoming - West', cls: 'west' },
     'Second 30 Therapists-SP': { label: 'Wyoming - West', cls: 'west' }
   };
-  var INTERNAL = new Set(['First 30 Therapists', 'Second 30 Therapists', 'Second 30 Therapists-SP']);
-  var LOC_ORDER = ['East Michigan', 'IHC West', 'Virtual'];
-  var TAXONOMY = [
+  const INTERNAL = new Set(['First 30 Therapists', 'Second 30 Therapists', 'Second 30 Therapists-SP']);
+  const LOC_ORDER = ['East Michigan', 'IHC West', 'Virtual'];
+  const TAG_CANONICAL = {
+    "asperger's syndrome": "Asperger's Syndrome",
+    'co-occuring disorders': 'Co-Occuring Disorders',
+    'co-occurring disorders': 'Co-Occuring Disorders',
+    'eating disorders (sammy only)': 'Eating Disorders (Sammy Only)',
+    'eating disorders': 'Eating Disorders',
+    'exposure response prevention (erp)': 'Exposure Response Prevention (ERP)',
+    'erp': 'Exposure Response Prevention (ERP)',
+    'skin picking/hair pulling': 'Skin Picking/Hair Pulling',
+    'skin picking / hair pulling': 'Skin Picking/Hair Pulling',
+    'tourettes/tic disorder': 'Tourettes/Tic Disorder',
+    "tourette's disorder": 'Tourettes/Tic Disorder',
+    'tic disorder': 'Tourettes/Tic Disorder',
+    "women's issues": "Women's Issues",
+    'women': "Women's Issues"
+  };
+  function normalizeTag(tag) {
+    const clean = String(tag || '').trim();
+    return TAG_CANONICAL[clean.toLowerCase()] || clean;
+  }
+  const TAXONOMY = [
     { group: 'Individual Therapy', tags: ['children 0-6','children 4+','children 6+','children 10+','child','children','children 0-3','adolescents','adolescent','teens','young adults','adults','adult','seniors','older adult','older adult (65+)','college students'] },
     { group: 'Relational Therapy', tags: ['couples','couples/marriage','couples / marriage','family','co-parenting','blended families','separation & divorce','separation/divorce','divorce','infidelity','marital affairs','parenting'] },
-    { group: 'Treatment Interests', tags: ['academic achievement','adhd','adoption','addictive behaviors','addiction','substance use','substance abuse','autism spectrum disorder','autism','neurodiversity','anger management','anxiety','attachment issues','attachment & bonding','athletes','behavioral concerns','developmental & behavioral concerns','bi-polar i & ii','bi-polar','bipolar','blended families','body image','boundary setting issues','career','chronic pain/chronic illness','chronic pain','chronic illness','chronic illness and disease management','co-occurring disorders','codependency','complex childhood trauma','childhood abuse','cultural concerns','depression','developmental concerns','delinquency','partner abuse/violence','eating disorders','eating disorder','eating disorder & body image','emerging adulthood','executive function','existential concerns','foster care','adoption & foster care','frontliner & first responder support','first responder','frontline workers','helping professions','military/veterans/families','military veterans & families','grief/loss','grief / loss','grief and loss','health anxiety','infant loss/miscarriage','infant loss / miscarriage','infertility','insomnia','lgbtq+','lgbtq','life transitions','mens issues','neurodiversity','neurodiverse','ocd','oppositional defiant behaviors','oppositional & defiant behaviors','parenting','peer relationship','perimenopause/menopause/post-menopause','perimenopause','menopause','women','personality disorders','personality disorder','phobias','specific phobias','prenatal/perinatal/postpartum','perinatal / pregnancy / postpartum','perinatal','postpartum depression','postpartum anxiety','pregnancy','ptsd','ptsd / trauma','race-based trauma','racial trauma','racial identity development','racial identity','religious trauma','school issues','selective mutism','self-esteem','self-esteem issues','self harm','self-harm','sensory processing issues','sexual abuse','sexual identity','gender identity','skin picking/hair pulling','skin picking','hair pulling','stress management','spiritual issues','spirituality','suicidal ideation','survivors of narcissistic abuse','testing','tic disorder','trauma','social skills','bullying','neonatal','abortion recovery','biofeedback','health coaching','coaching for kids','aspergers syndrome','tourettes disorder','mens issues','womens issues'] },
-    { group: 'Therapeutic Approaches', tags: ['act','art therapy','cbt','cbt-i','cpt','faith-based counseling','faith based counseling','christian','christian counseling','culturally-informed therapy','dbt','emdr','emotionally focused couples therapy','erp','filial therapy','gottman couples therapy','health coaching','inference-based cbt','internal family systems','interpersonal therapy','mindfulness','motivational interviewing','music therapy','narrative therapy','person centered','play therapy','polyvagal theory','prolonged exposure','psychodynamic','sex therapy','solution-focused treatment','somatic therapy','strengths-based treatment','theraplay','trauma focused cbt','trauma informed therapy','trauma-informed','trauma-informed care','attachment theory','biofeedback','executive function'] },
+    { group: 'Treatment Interests', tags: ['academic achievement','adhd','adoption','addictive behaviors','addiction','substance use','substance abuse',"Asperger's Syndrome",'autism spectrum disorder','autism','neurodiversity','anger management','anxiety','attachment issues','attachment & bonding','athletes','behavioral concerns','developmental & behavioral concerns','bi-polar i & ii','bi-polar','bipolar','blended families','body image','boundary setting issues','career','chronic pain/chronic illness','chronic pain','chronic illness','chronic illness and disease management','Co-Occuring Disorders','codependency','complex childhood trauma','childhood abuse','cultural concerns','depression','developmental concerns','delinquency','partner abuse/violence','Eating Disorders (Sammy Only)','Eating Disorders','eating disorder','eating disorder & body image','emerging adulthood','executive function','existential concerns','foster care','adoption & foster care','frontliner & first responder support','first responder','frontline workers','helping professions','military/veterans/families','military veterans & families','grief/loss','grief / loss','grief and loss','health anxiety','infant loss/miscarriage','infant loss / miscarriage','infertility','insomnia','lgbtq+','lgbtq','life transitions','mens issues',"men's issues",'neurodiversity','neurodiverse','ocd','oppositional defiant behaviors','oppositional & defiant behaviors','parenting','peer relationship','perimenopause/menopause/post-menopause','perimenopause','menopause',"Women's Issues",'personality disorders','personality disorder','phobias','specific phobias','prenatal/perinatal/postpartum','perinatal / pregnancy / postpartum','perinatal','postpartum depression','postpartum anxiety','pregnancy','ptsd','ptsd / trauma','race-based trauma','racial trauma','racial identity development','racial identity','religious trauma','school issues','selective mutism','self-esteem','self-esteem issues','self harm','self-harm','sensory processing issues','sexual abuse','sexual identity','gender identity','Skin Picking/Hair Pulling','skin picking','hair pulling','stress management','spiritual issues','spirituality','suicidal ideation','survivors of narcissistic abuse','testing','Tourettes/Tic Disorder','trauma','separation/divorce','social skills','bullying','neonatal','abortion recovery','biofeedback','health coaching','coaching for kids'] },
+    { group: 'Therapeutic Approaches', tags: ['act','art therapy','cbt','cbt-i','cpt','faith-based counseling','faith based counseling','christian','christian counseling','culturally-informed therapy','dbt','emdr','emotionally focused couples therapy','Exposure Response Prevention (ERP)','filial therapy','gottman couples therapy','health coaching','inference-based cbt','internal family systems','interpersonal therapy','mindfulness','motivational interviewing','music therapy','narrative therapy','person centered','play therapy','polyvagal theory','prolonged exposure','psychodynamic','queer & feminist approach','sex therapy','solution-focused treatment','somatic therapy','strengths-based treatment','theraplay','trauma focused cbt','trauma informed therapy','trauma-informed','trauma-informed care','attachment theory','biofeedback','executive function'] },
     { group: 'Bilingual Services', tags: ['spanish-speaking','spanish speaking','spanish','spanish-speaking counseling'] }
   ];
-  var TAG_GROUP = {};
-  TAXONOMY.forEach(function(item) {
-    item.tags.forEach(function(t) { TAG_GROUP[t.toLowerCase()] = item.group; });
+  const TAG_GROUP = {};
+  TAXONOMY.forEach(({ group, tags }) => {
+    tags.forEach(t => { TAG_GROUP[normalizeTag(t).toLowerCase()] = group; });
   });
-  function getGroup(tag) { return TAG_GROUP[tag.toLowerCase()] || 'Other'; }
-  var expandedGroups = {};
-  var all = [];
-  var specFilter = null;
-  var locFilter = null;
-  var searchQuery = '';
-  function fetchAll() {
-    var items = [];
-    var seen = {};
-    function next(url) {
-      if (!url || seen[url]) return Promise.resolve(items);
-      seen[url] = true;
-      return fetch(url).then(function(r) {
-        if (!r.ok) throw new Error('Fetch failed: ' + url);
-        return r.json();
-      }).then(function(d) {
-        (d.items || []).forEach(function(i) { items.push(i); });
-        var p = d.pagination || {};
-        if (!p.nextPage) return items;
-        var nextUrl;
-        if (p.nextPageUrl) {
-          nextUrl = p.nextPageUrl;
-          if (nextUrl.indexOf('format=json') === -1) {
-            nextUrl += (nextUrl.indexOf('?') >= 0 ? '&' : '?') + 'format=json';
-          }
-        } else if (p.nextPageOffset) {
-          nextUrl = SLUG + '?format=json&offset=' + encodeURIComponent(p.nextPageOffset);
-        } else {
-          return items;
-        }
-        return next(nextUrl);
-      });
+  function getGroup(tag) { return TAG_GROUP[normalizeTag(tag).toLowerCase()] || 'Other'; }
+  const expandedGroups = {};
+  let all = [], specFilter = null, locFilter = null, searchQuery = '';
+  async function fetchAll() {
+    const items = [], seen = new Set();
+    let url = SLUG + '?format=json';
+    while (url && !seen.has(url)) {
+      seen.add(url);
+      const r = await fetch(url);
+      if (!r.ok) throw new Error('Could not fetch ' + url);
+      const d = await r.json();
+      items.push(...(d.items || []));
+      const p = d.pagination || {};
+      if (!p.nextPage) break;
+      if (p.nextPageUrl) {
+        url = new URL(p.nextPageUrl, window.location.origin).href;
+        if (!url.includes('format=json')) url += (url.includes('?') ? '&' : '?') + 'format=json';
+      } else if (p.nextPageOffset) {
+        url = SLUG + '?format=json&offset=' + encodeURIComponent(p.nextPageOffset);
+      } else break;
     }
-    return next(SLUG + '?format=json');
+    return items;
   }
   function parseExcerpt(html) {
     if (!html) return {};
-    var tmp = document.createElement('div');
+    const tmp = document.createElement('div');
     tmp.innerHTML = html;
-    var lines = Array.prototype.slice.call(tmp.querySelectorAll('p')).map(function(p) { return p.textContent.trim(); }).filter(Boolean);
-    var phone = '', email = '', sessionType = '';
-    lines.forEach(function(line) {
+    const lines = [...tmp.querySelectorAll('p')].map(p => p.textContent.trim()).filter(Boolean);
+    let phone = '', email = '', sessionType = '';
+    lines.forEach(line => {
       if (/^\d{3}-\d{3}-\d{4}/.test(line)) phone = line;
-      else if (line.indexOf('@') >= 0) email = line;
+      else if (line.includes('@')) email = line;
       else if (/in-person|telehealth/i.test(line)) sessionType = line;
     });
-    return { phone: phone, email: email, sessionType: sessionType };
+    return { phone, email, sessionType };
   }
   function parse(item) {
-    var cats = (item.categories || []).filter(function(c) { return !INTERNAL.has(c); });
-    var t = (item.title || '').replace(/\s*\(Copy\)\s*$/, '').trim();
-    var ci = t.search(/,\s*[A-Z]/);
-    var exc = parseExcerpt(item.excerpt || '');
-    var fp = item.mediaFocalPoint;
+    const cats = (item.categories || []).filter(c => !INTERNAL.has(c));
+    const t = (item.title || '').replace(/\s*\(Copy\)\s*$/, '').trim();
+    const ci = t.search(/,\s*[A-Z]/);
+    const { phone, email, sessionType } = parseExcerpt(item.excerpt || '');
+    const fp = item.mediaFocalPoint;
+    const tags = [...new Set((item.tags || []).map(normalizeTag).filter(Boolean))];
     return {
       id: String(item.id || ''),
       name: ci > -1 ? t.slice(0, ci).trim() : t,
       creds: ci > -1 ? t.slice(ci + 1).trim() : '',
-      location: cats[0] || null,
-      tags: (item.tags || []).map(function(x) { return x.trim(); }).filter(Boolean),
-      photo: item.assetUrl || null,
-      url: item.fullUrl || '#',
-      phone: exc.phone, email: exc.email, sessionType: exc.sessionType,
+      location: cats[0] || null, tags,
+      photo: item.assetUrl || null, url: item.fullUrl || '#',
+      phone, email, sessionType,
       focalX: fp ? Math.round(fp.x * 100) : 50,
       focalY: fp ? Math.round(fp.y * 100) : 20
     };
   }
   function buildFilterGroups() {
-    var tagSet = {}, locSet = {};
-    all.forEach(function(c) {
-      c.tags.forEach(function(t) { tagSet[t] = true; });
-      if (c.location) locSet[c.location] = true;
-    });
-    var grouped = {};
-    Object.keys(tagSet).forEach(function(tag) {
-      var g = getGroup(tag);
-      if (!grouped[g]) grouped[g] = [];
-      grouped[g].push(tag);
-    });
-    Object.values(grouped).forEach(function(arr) { arr.sort(function(a,b) { return a.localeCompare(b); }); });
-    var ordered = [];
-    TAXONOMY.forEach(function(item) { if (grouped[item.group]) ordered.push({ group: item.group, tags: grouped[item.group] }); });
-    if (grouped['Other']) ordered.push({ group: 'Other', tags: grouped['Other'] });
-    return { groups: ordered, locs: LOC_ORDER.filter(function(l) { return locSet[l]; }) };
+    const tagSet = new Set(), locSet = new Set();
+    all.forEach(c => { c.tags.forEach(t => tagSet.add(normalizeTag(t))); if (c.location) locSet.add(c.location); });
+    const grouped = {};
+    tagSet.forEach(tag => { const g = getGroup(tag); if (!grouped[g]) grouped[g] = []; grouped[g].push(tag); });
+    Object.values(grouped).forEach(arr => arr.sort((a, b) => a.localeCompare(b)));
+    const ordered = [];
+    TAXONOMY.forEach(({ group }) => { if (grouped[group]) ordered.push({ group, tags: grouped[group] }); });
+    if (grouped.Other) ordered.push({ group: 'Other', tags: grouped.Other });
+    return { groups: ordered, locs: LOC_ORDER.filter(l => locSet.has(l)) };
   }
   function matches(c) {
-    if (specFilter && c.tags.indexOf(specFilter) === -1) return false;
+    if (specFilter && !c.tags.includes(specFilter)) return false;
     if (locFilter && c.location !== locFilter) return false;
     if (searchQuery) {
-      var q = searchQuery.toLowerCase();
-      var locLabel = (LOC_MAP[c.location] && LOC_MAP[c.location].label) || '';
-      if (c.name.toLowerCase().indexOf(q) === -1 && !c.tags.some(function(t) { return t.toLowerCase().indexOf(q) >= 0; }) && locLabel.toLowerCase().indexOf(q) === -1) return false;
+      const q = searchQuery.toLowerCase();
+      if (!c.name.toLowerCase().includes(q) && !c.tags.some(t => t.toLowerCase().includes(q)) && !(LOC_MAP[c.location]?.label || '').toLowerCase().includes(q)) return false;
     }
     return true;
   }
-  function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
-  var checkSVG = '<svg viewBox="0 0 12 12"><polyline points="2,6 5,9 10,3"/></svg>';
-  var chevron = '<svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>';
-  function optionHTML(tag, type) {
-    var isLoc = type === 'location';
-    var label = isLoc ? ((LOC_MAP[tag] && LOC_MAP[tag].label) || tag) : tag;
-    var isActive = isLoc ? locFilter === tag : specFilter === tag;
-    var cls = 'filter-option' + (isLoc ? ' location' : '') + (isActive ? ' active' : '');
-    var attr = isLoc ? 'data-loc="' + esc(tag) + '"' : 'data-spec="' + esc(tag) + '"';
-    return '<div class="' + cls + '" ' + attr + '><span class="filter-checkbox">' + checkSVG + '</span><span>' + esc(label) + '</span></div>';
+  function escHtml(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+  const checkSVG = '<svg viewBox="0 0 12 12"><polyline points="2,6 5,9 10,3"/></svg>';
+  const chevronDown = '<svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>';
+  function filterOptionHTML(tag, type) {
+    const isLoc = type === 'location';
+    const value = normalizeTag(tag);
+    const label = isLoc ? (LOC_MAP[tag]?.label || tag) : value;
+    const isActive = isLoc ? locFilter === tag : specFilter === value;
+    const cls = 'filter-option' + (isLoc ? ' location' : '') + (isActive ? ' active' : '');
+    const attr = isLoc ? 'data-loc="' + escHtml(tag) + '"' : 'data-spec="' + escHtml(value) + '"';
+    return '<div class="' + cls + '" ' + attr + '><span class="filter-checkbox">' + checkSVG + '</span><span>' + escHtml(label) + '</span></div>';
   }
-  function groupHTML(group, tags, isLoc) {
-    var expanded = expandedGroups[group];
-    var showAll = expanded || tags.length <= SEE_MORE_LIMIT;
-    var vis = showAll ? tags : tags.slice(0, SEE_MORE_LIMIT);
-    var h = '<div class="filter-group"><span class="filter-group-label">' + esc(group) + '</span>';
-    vis.forEach(function(t) { h += optionHTML(t, isLoc ? 'location' : 'specialty'); });
+  function filterGroupHTML(group, tags, isLocation) {
+    const expanded = expandedGroups[group];
+    const showAll = expanded || tags.length <= SEE_MORE_LIMIT;
+    const visible = showAll ? tags : tags.slice(0, SEE_MORE_LIMIT);
+    const hidden = tags.length - SEE_MORE_LIMIT;
+    let h = '<div class="filter-group"><span class="filter-group-label">' + escHtml(group) + '</span>';
+    visible.forEach(t => { h += filterOptionHTML(t, isLocation ? 'location' : 'specialty'); });
     if (tags.length > SEE_MORE_LIMIT) {
-      var btnCls = 'see-more-btn' + (expanded ? ' expanded' : '');
-      var lbl = expanded ? 'See less' : 'See ' + (tags.length - SEE_MORE_LIMIT) + ' more';
-      h += '<button class="' + btnCls + '" data-group="' + esc(group) + '">' + chevron + lbl + '</button>';
+      const btnCls = 'see-more-btn' + (expanded ? ' expanded' : '');
+      const label = expanded ? 'See less' : 'See ' + hidden + ' more';
+      h += '<button class="' + btnCls + '" data-group="' + escHtml(group) + '">' + chevronDown + label + '</button>';
     }
     return h + '</div>';
   }
-  function sidebarHTML(groups, locs, visCount) {
-    var hasFilters = specFilter || locFilter || searchQuery;
-    var h = '<div class="ihc-sidebar">';
-    h += '<button class="filter-toggle-btn" id="filterToggle"><span>Filter Clinicians' + (hasFilters ? ' - active' : '') + '</span>' + chevron + '</button>';
+  function sidebarHTML(groups, locs, visible) {
+    const activeCount = [specFilter, locFilter, searchQuery].filter(Boolean).length;
+    const hasFilters = activeCount > 0;
+    let h = '<div class="ihc-sidebar"><button class="filter-toggle-btn" id="filterToggle"><span>Filter Clinicians' + (hasFilters ? ' - ' + activeCount + ' active' : '') + '</span>' + chevronDown + '</button>';
     h += '<div class="sidebar-body" id="sidebarBody"><div class="sidebar-header"><span>Filter Clinicians</span></div>';
-    if (locs.length) h += groupHTML('Location', locs, true);
-    groups.forEach(function(g) { h += groupHTML(g.group, g.tags, false); });
-    h += '<div class="sidebar-footer"><div class="result-summary">Showing <strong>' + visCount + '</strong> of <strong>' + all.length + '</strong> clinicians</div>';
-    h += '<button class="clear-btn" id="clearBtn"' + (hasFilters ? '' : ' disabled') + '>Clear all filters</button></div>';
-    h += '</div></div>';
-    return h;
+    if (locs.length) h += filterGroupHTML('Location', locs, true);
+    groups.forEach(({ group, tags }) => { h += filterGroupHTML(group, tags, false); });
+    h += '<div class="sidebar-footer"><div class="result-summary">Showing <strong>' + visible + '</strong> of <strong>' + all.length + '</strong> clinicians</div><button class="clear-btn" id="clearBtn"' + (hasFilters ? '' : ' disabled') + '>Clear all filters</button></div>';
+    return h + '</div></div>';
   }
   function badge(loc) {
-    var m = LOC_MAP[loc]; if (!m) return '';
-    var pin = '<svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/></svg>';
-    var screen = '<svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>';
+    const m = LOC_MAP[loc]; if (!m) return '';
+    const pin = '<svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/></svg>';
+    const screen = '<svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>';
     return '<span class="loc-badge ' + m.cls + '">' + (m.cls === 'virtual' ? screen : pin) + m.label + '</span>';
   }
   function contactHTML(c) {
-    var h = '<div class="clinician-contact">';
-    if (c.phone) h += '<a class="clinician-contact-row" href="tel:' + c.phone.replace(/\D/g,'') + '"><svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2A19.8 19.8 0 0 1 3.09 5.18 2 2 0 0 1 5.07 3h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L9.09 10.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 23 18z"/></svg><span>' + esc(c.phone) + '</span></a>';
-    if (c.email) h += '<a class="clinician-contact-row" href="mailto:' + esc(c.email) + '"><svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg><span>' + esc(c.email) + '</span></a>';
-    if (c.sessionType) h += '<span class="session-type">' + esc(c.sessionType) + '</span>';
+    let h = '<div class="clinician-contact">';
+    if (c.phone) h += '<a class="clinician-contact-row" href="tel:' + c.phone.replace(/\D/g,'') + '"><svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2A19.8 19.8 0 0 1 3.09 5.18 2 2 0 0 1 5.07 3h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L9.09 10.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 23 18z"/></svg><span>' + escHtml(c.phone) + '</span></a>';
+    if (c.email) h += '<a class="clinician-contact-row" href="mailto:' + escHtml(c.email) + '"><svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg><span>' + escHtml(c.email) + '</span></a>';
+    if (c.sessionType) h += '<span class="session-type">' + escHtml(c.sessionType) + '</span>';
     return h + '</div>';
   }
   function cardHTML(c) {
-    var ph = c.photo ? '<img src="' + esc(c.photo) + '" alt="' + esc(c.name) + '" loading="lazy" style="object-position:' + c.focalX + '% ' + c.focalY + '%">' : '<div class="clinician-photo-fallback"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>';
-    return '<div class="clinician-card" data-id="' + esc(c.id) + '"><a class="card-photo-link" href="' + esc(c.url) + '"><div class="clinician-photo">' + ph + badge(c.location) + '</div></a><div class="clinician-body"><div class="clinician-name">' + esc(c.name) + '</div>' + (c.creds ? '<div class="clinician-creds">' + esc(c.creds) + '</div>' : '') + contactHTML(c) + '<a class="profile-link" href="' + esc(c.url) + '">View Profile</a></div></div>';
+    const ph = c.photo ? '<img src="' + escHtml(c.photo) + '" alt="' + escHtml(c.name) + '" loading="lazy" style="object-position:' + c.focalX + '% ' + c.focalY + '%">' : '<div class="clinician-photo-fallback"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>';
+    return '<div class="clinician-card" data-id="' + escHtml(c.id) + '"><a class="card-photo-link" href="' + escHtml(c.url) + '"><div class="clinician-photo">' + ph + badge(c.location) + '</div></a><div class="clinician-body"><div class="clinician-name">' + escHtml(c.name) + '</div>' + (c.creds ? '<div class="clinician-creds">' + escHtml(c.creds) + '</div>' : '') + contactHTML(c) + '<a class="profile-link" href="' + escHtml(c.url) + '">View Profile</a></div></div>';
   }
   function render() {
-    var root = document.getElementById('ihc-filter-root');
-    var fg = buildFilterGroups();
-    var visCount = all.filter(matches).length;
-    var html = '<div class="ihc-layout">' + sidebarHTML(fg.groups, fg.locs, visCount) + '<div class="ihc-main">';
-    html += '<div class="search-wrap"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg><input class="search-input" id="searchInput" type="text" placeholder="Search by name, specialty, or location..." value="' + esc(searchQuery) + '"></div>';
-    html += '<div class="clinician-grid">';
-    all.forEach(function(c) {
-      var cls = matches(c) ? '' : ' hidden';
-      html += cardHTML(c).replace('class="clinician-card"', 'class="clinician-card' + cls + '"');
-    });
-    html += '</div>';
-    html += '<div class="empty-state" id="emptyState" style="display:' + (visCount === 0 ? 'block' : 'none') + '"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg><p>No clinicians match those filters.</p></div>';
+    const root = document.getElementById('ihc-filter-root');
+    const { groups, locs } = buildFilterGroups();
+    const visible = all.filter(matches).length;
+    let html = '<div class="ihc-layout">' + sidebarHTML(groups, locs, visible) + '<div class="ihc-main">';
+    html += '<div class="search-wrap"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg><input class="search-input" id="searchInput" type="text" placeholder="Search by name, specialty, or location..." value="' + escHtml(searchQuery) + '"></div>';
+    html += '<div class="clinician-grid">' + all.map(c => { const cls = matches(c) ? '' : ' hidden'; return cardHTML(c).replace('class="clinician-card"', 'class="clinician-card' + cls + '"'); }).join('') + '</div>';
+    html += '<div class="empty-state" id="emptyState" style="display:' + (visible === 0 ? 'block' : 'none') + '"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg><p>No clinicians match those filters.</p></div>';
     html += '</div></div>';
     root.innerHTML = html;
     attachEvents();
   }
-  function updateCards() {
-    var vis = 0;
-    document.querySelectorAll('.clinician-card').forEach(function(card) {
-      var c = null;
-      for (var i = 0; i < all.length; i++) { if (all[i].id === card.dataset.id) { c = all[i]; break; } }
+  function updateCardsOnly() {
+    let visible = 0;
+    document.querySelectorAll('.clinician-card').forEach(card => {
+      const c = all.find(x => x.id === card.dataset.id);
       if (!c) return;
-      var show = matches(c);
+      const show = matches(c);
       card.classList.toggle('hidden', !show);
-      if (show) vis++;
+      if (show) visible++;
     });
-    var sum = document.querySelector('.result-summary');
-    if (sum) sum.innerHTML = 'Showing <strong>' + vis + '</strong> of <strong>' + all.length + '</strong> clinicians';
-    var cb = document.getElementById('clearBtn');
+    const sum = document.querySelector('.result-summary');
+    if (sum) sum.innerHTML = 'Showing <strong>' + visible + '</strong> of <strong>' + all.length + '</strong> clinicians';
+    const cb = document.getElementById('clearBtn');
     if (cb) cb.disabled = !(specFilter || locFilter || searchQuery);
-    var es = document.getElementById('emptyState');
-    if (es) es.style.display = vis === 0 ? 'block' : 'none';
+    const es = document.getElementById('emptyState');
+    if (es) es.style.display = visible === 0 ? 'block' : 'none';
   }
   function attachEvents() {
-    document.querySelectorAll('.filter-option:not(.location)').forEach(function(el) {
-      el.addEventListener('click', function() { specFilter = specFilter === el.dataset.spec ? null : el.dataset.spec; render(); });
+    document.querySelectorAll('.filter-option:not(.location)').forEach(el => {
+      el.addEventListener('click', () => { specFilter = specFilter === el.dataset.spec ? null : el.dataset.spec; render(); });
     });
-    document.querySelectorAll('.filter-option.location').forEach(function(el) {
-      el.addEventListener('click', function() { locFilter = locFilter === el.dataset.loc ? null : el.dataset.loc; render(); });
+    document.querySelectorAll('.filter-option.location').forEach(el => {
+      el.addEventListener('click', () => { locFilter = locFilter === el.dataset.loc ? null : el.dataset.loc; render(); });
     });
-    document.querySelectorAll('.see-more-btn').forEach(function(btn) {
-      btn.addEventListener('click', function(e) {
+    document.querySelectorAll('.see-more-btn').forEach(btn => {
+      btn.addEventListener('click', e => {
         e.stopPropagation();
         expandedGroups[btn.dataset.group] = !expandedGroups[btn.dataset.group];
         render();
-        var sb = document.getElementById('sidebarBody');
+        const sb = document.getElementById('sidebarBody');
         if (sb && window.innerWidth <= 768) sb.classList.add('open');
       });
     });
-    var cb = document.getElementById('clearBtn');
-    if (cb) cb.addEventListener('click', function() { specFilter = null; locFilter = null; searchQuery = ''; render(); });
-    var si = document.getElementById('searchInput');
+    const cb = document.getElementById('clearBtn');
+    if (cb) cb.addEventListener('click', () => { specFilter = null; locFilter = null; searchQuery = ''; render(); });
+    const si = document.getElementById('searchInput');
     if (si) {
-      var timer;
-      si.addEventListener('input', function(e) {
-        clearTimeout(timer);
-        timer = setTimeout(function() { searchQuery = e.target.value.trim(); updateCards(); }, 150);
-      });
+      let timer;
+      si.addEventListener('input', e => { clearTimeout(timer); timer = setTimeout(() => { searchQuery = e.target.value.trim(); updateCardsOnly(); }, 150); });
     }
-    var tb = document.getElementById('filterToggle');
-    var sb = document.getElementById('sidebarBody');
-    if (tb && sb) {
-      tb.addEventListener('click', function() { sb.classList.toggle('open'); tb.classList.toggle('open'); });
-    }
+    const tb = document.getElementById('filterToggle'), sb = document.getElementById('sidebarBody');
+    if (tb && sb) tb.addEventListener('click', () => { sb.classList.toggle('open'); tb.classList.toggle('open'); });
   }
-  function init() {
-    fetchAll().then(function(raw) {
-      all = raw.map(parse).filter(function(c) { return c.name; });
+  async function init() {
+    try {
+      const raw = await fetchAll();
+      all = raw.map(parse).filter(c => c.name);
       render();
-    }).catch(function(e) {
+    } catch (e) {
       console.error('[IHC Filter]', e);
-      var root = document.getElementById('ihc-filter-root');
+      const root = document.getElementById('ihc-filter-root');
       if (root) root.innerHTML = '<div class="loading-state"><p>Could not load clinician data. Please refresh.</p></div>';
-    });
+    }
   }
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init);
-  } else {
-    init();
-  }
+  document.readyState === 'loading' ? document.addEventListener('DOMContentLoaded', init) : init();
 })();
 </script>
